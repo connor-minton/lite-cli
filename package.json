@@ -1,7 +1,7 @@
 {
   "name": "@cminton/lite-cli",
   "version": "0.0.1",
-  "description": "A zero-dependency, quick command line args parser",
+  "description": "A zero-ish-dependency, quick command line args parser",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -10,5 +10,8 @@
     "cli"
   ],
   "author": "Connor Minton",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "@cminton/sak": "0.0.1"
+  }
 }

@@ -1,6 +1,8 @@
+const OptionParserConfig = require('./option-parser-config');
+
 class OptionParser {
   constructor(config) {
-    this._config = config || {};
+    this._config = new OptionParserConfig(config);
   }
 
   /**
@@ -16,8 +18,6 @@ class OptionParser {
     const results = {
       _: []
     };
-
-    // ignore config for now. let's implement the zero-config parser
 
     for (let i = 0; i < opts.length; i++) {
       const opt = String(opts[i]);
