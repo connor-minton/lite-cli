@@ -11,7 +11,5 @@
   ],
   "author": "Connor Minton",
   "license": "ISC",
-  "dependencies": {
-    "@cminton/sak": "0.0.1"
-  }
+  "dependencies": {}
 }
