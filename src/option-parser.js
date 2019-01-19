@@ -22,22 +22,27 @@ class OptionParser {
    * and script name.
    */
   parse(opts) {
-    const state = this._state;
-    const result = this._result;
-
     if (!Array.isArray(opts)) {
       throw new Error('expected array, got ' + typeof opts);
     }
 
     this._originalArgs = opts;
 
-    for (let opt of opts) {
-      this._parseOpt(opt);
-      this._validateState();
-      if (state.done) break;
+    return this._parseOpts(opts);
+  }
+
+  _parseOpts(opts) {
+    if (opts.length === 0) {
+      this._state.done = true;
     }
 
-    return result;
+    for (let opt of opts) {
+      this._parseOpt(opt);
+      if (this._state.done) break;
+    }
+
+    this._validateState();
+    return this._result;
   }
 
   _parseOpt(opt) {

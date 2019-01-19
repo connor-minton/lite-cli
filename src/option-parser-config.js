@@ -1,4 +1,4 @@
-const { objectLike, touch, get, pick, has } = require('./sak');
+const { objectLike, touch, get, pick, has, isNumber } = require('./sak');
 const { InvalidConfigError } = require('./error');
 
 const optionTypes = ['number', 'boolean', 'string', 'count'];
@@ -8,6 +8,8 @@ class OptionParserConfig {
     this._config = objectLike(config) ? config : {};
     touch(this._config, 'options');
     touch(this._config, 'arguments');
+
+    this._normalizeConfig();
   }
 
   getNargs(option) {
@@ -46,14 +48,14 @@ class OptionParserConfig {
   }
 
   _normalizeOptNargs(opt) {
-      if (opts[opt].type === 'string') {
-        if (Number.isNaN(opts[opt].nargs))
-          opts[opt].nargs = 1;
-        else if (opts[opt].nargs < 1) {
-          throw new InvalidConfigError(`option '${opt}' of type 'string' must have 1 or more nargs`);
-        }
+    const opts = this._config.options;
+    if (opts[opt].type === 'string') {
+      if (!isNumber(opts[opt].nargs))
+        opts[opt].nargs = 1;
+      else if (opts[opt].nargs < 1) {
+        throw new InvalidConfigError(`option '${opt}' of type 'string' must have 1 or more nargs`);
       }
-
+    }
   }
 }
 

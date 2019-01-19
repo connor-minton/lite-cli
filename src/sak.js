@@ -203,6 +203,16 @@ function mapEntries(obj, iteratee) {
 }
 
 /**
+ * Returns `true` if `thing` is not `NaN` and is of type `number` or an
+ * instance of `Number`. This includes +/- `Infinity`. Better than
+ * comparing to `NaN`.
+ */
+function isNumber(thing) {
+  return !Number.isNaN(thing)
+    && (typeof thing === 'number' || thing instanceof Number);
+}
+
+/**
  * @param {((key:string|number,value:any) => boolean | string[] | number[]} predicate
  */
 function pick(objOrArray, predicate) {
@@ -290,5 +300,6 @@ module.exports = {
   mapValues,
   mapEntries,
   pick,
-  all
+  all,
+  isNumber
 };
