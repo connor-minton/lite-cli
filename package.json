@@ -1,6 +1,6 @@
 {
   "name": "@cminton/lite-cli",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "A zero-ish-dependency, quick command line args parser",
   "main": "index.js",
   "scripts": {
