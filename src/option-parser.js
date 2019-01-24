@@ -6,14 +6,10 @@ class OptionParser {
   constructor(config) {
     this._config = new OptionParserConfig(config);
     this._result = { _: [] };
-    this._state = {
-      curOpt: null,
-      curOptConfig: null,
-      curNargs: null,
-      argsParsed: 0,
-      done: false
-    };
     this._originalArgs = [];
+
+    this._initState();
+    this._initResults();
   }
 
   /**
@@ -29,6 +25,24 @@ class OptionParser {
     this._originalArgs = opts;
 
     return this._parseOpts(opts);
+  }
+
+  _initResults() {
+    this._result = { _: [] };
+    for (let opt of Object.keys(this._config.getOptions())) {
+      if (this._config.getType(opt) === 'count')
+        this._result[opt] = 0;
+    }
+  }
+
+  _initState() {
+    this._state = {
+      curOpt: null,
+      curOptConfig: null,
+      curNargs: null,
+      argsParsed: 0,
+      done: false
+    };
   }
 
   _parseOpts(opts) {
@@ -85,12 +99,17 @@ class OptionParser {
 
     const key = opt.substring(1);
     const nargs = config.getNargs(key);
+    const type = config.getType(key);
+
     if (nargs > 0) {
       state.curNargs = nargs;
       state.curOpt = key;
     }
-    else {
+    else if (type === 'boolean') {
       result[key] = true;
+    }
+    else if (type === 'count') {
+      result[key]++;
     }
     state.argsParsed++;
   }
@@ -101,19 +120,27 @@ class OptionParser {
     const config = this._config;
 
     const key = opt.substring(2);
+    const type = config.getType(key);
     const nargs = config.getNargs(key);
+
     if (nargs > 0) {
       state.curNargs = nargs;
       state.curOpt = key;
     }
-    else {
+    else if (type === 'boolean') {
       result[key] = true;
+    }
+    else if (type === 'count') {
+      result[key]++;
     }
     state.argsParsed++;
   }
 
   _parseNegateOpt(opt) {
     const key = opt.substring(5);
+    const type = this._config.getType(key);
+    if (type !== 'boolean')
+      throw new ParseError(`bad flag ${opt}: option ${key} is not boolean`);
     this._result[key] = false;
     this._state.argsParsed++;
   }
@@ -153,7 +180,7 @@ class OptionParser {
       }
 
       for (let opt of config.getRequiredOptions()) {
-        if (!has(result, opt)) {
+        if (!has(result, opt) || config.getType(opt) === 'count' && result[opt] === 0) {
           const msg = `Missing required option '${opt}'.`;
           throw new ParseError(msg);
         }

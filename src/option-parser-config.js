@@ -1,4 +1,8 @@
-const { objectLike, touch, get, pick, has, isNumber } = require('./sak');
+const {
+  objectLike, touch, get,
+  pick, has, isNumber, set
+} = require('./sak');
+
 const { InvalidConfigError } = require('./error');
 
 const optionTypes = ['number', 'boolean', 'string', 'count'];
@@ -14,6 +18,14 @@ class OptionParserConfig {
 
   getNargs(option) {
     return get(this._config, ['options', option, 'nargs']);
+  }
+
+  getType(option) {
+    return get(this._config, ['options', option, 'type']) || 'boolean';
+  }
+
+  getOptions() {
+    return this._config.options;
   }
 
   getRequiredOptions() {
@@ -36,25 +48,37 @@ class OptionParserConfig {
     const opts = this._config.options;
     for (let opt in opts) {
       this._normalizeOptNargs(opt);
+      this._normalizeOptType(opt);
     }
   }
 
   _normalizeOptType(opt) {
-    const type = get(this._config.options.opt, 'type');
+    const optConfig = this._config.options[opt];
+    const type = get(optConfig, 'type');
     if (type == null)
-      type = 'boolean';
+      set(optConfig, 'type', 'boolean');
     else if (!optionTypes.includes(type))
       throw new InvalidConfigError(`option '${opt}' type '${type}' must be one of ${optionTypes}`);
   }
 
   _normalizeOptNargs(opt) {
-    const opts = this._config.options;
-    if (opts[opt].type === 'string') {
-      if (!isNumber(opts[opt].nargs))
-        opts[opt].nargs = 1;
-      else if (opts[opt].nargs < 1) {
-        throw new InvalidConfigError(`option '${opt}' of type 'string' must have 1 or more nargs`);
+    const optCfg = this._config.options[opt];
+    const type = get(optCfg, 'type');
+    const nargs = get(optCfg, 'nargs');
+
+    if (['string','number'].includes(type)) {
+      if (!isNumber(nargs))
+        set(optCfg, 'nargs', 1);
+      else if (nargs < 1) {
+        throw new InvalidConfigError(`option '${opt}' of type '${type}' must have 1 or more nargs`);
       }
+    }
+
+    else if (['boolean', 'count'].includes(type)) {
+      if (!isNumber(nargs))
+        set(optCfg, 'nargs', 0)
+      else if (nargs !== 0)
+        throw new InvalidConfigError(`option '${opt}' of type '${type}' cannot have nargs`);
     }
   }
 }

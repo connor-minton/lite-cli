@@ -1,1 +1,4 @@
-module.exports = require('./src/lite-cli');
+module.exports = {
+  LiteCli: require('./src/lite-cli'),
+  OptionParser: require('./src/option-parser')
+};
