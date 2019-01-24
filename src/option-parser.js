@@ -97,21 +97,25 @@ class OptionParser {
     const result = this._result;
     const config = this._config;
 
-    const key = opt.substring(1);
-    const nargs = config.getNargs(key);
-    const type = config.getType(key);
+    const keys = opt.substring(1);
 
-    if (nargs > 0) {
-      state.curNargs = nargs;
-      state.curOpt = key;
-      state.curOptType = type;
+    for (let key of keys) {
+      const nargs = config.getNargs(key);
+      const type = config.getType(key);
+
+      if (nargs > 0) {
+        state.curNargs = nargs;
+        state.curOpt = key;
+        state.curOptType = type;
+      }
+      else if (type === 'boolean') {
+        result[key] = true;
+      }
+      else if (type === 'count') {
+        result[key]++;
+      }
     }
-    else if (type === 'boolean') {
-      result[key] = true;
-    }
-    else if (type === 'count') {
-      result[key]++;
-    }
+
     state.argsParsed++;
   }
 

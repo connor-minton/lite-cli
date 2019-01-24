@@ -7,6 +7,9 @@ module.exports = {
       required: true,
       type: 'string',
       nargs: 2
+    },
+    v: {
+      type: 'count'
     }
   }
 };
