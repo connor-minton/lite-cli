@@ -1,6 +1,6 @@
 const OptionParserConfig = require('./option-parser-config');
 const { ParseError } = require('./error');
-const { has } = require('./sak');
+const { has, isNumber } = require('./sak');
 
 class OptionParser {
   constructor(config) {
@@ -38,7 +38,7 @@ class OptionParser {
   _initState() {
     this._state = {
       curOpt: null,
-      curOptConfig: null,
+      curOptType: null,
       curNargs: null,
       argsParsed: 0,
       done: false
@@ -104,6 +104,7 @@ class OptionParser {
     if (nargs > 0) {
       state.curNargs = nargs;
       state.curOpt = key;
+      state.curOptType = type;
     }
     else if (type === 'boolean') {
       result[key] = true;
@@ -126,6 +127,7 @@ class OptionParser {
     if (nargs > 0) {
       state.curNargs = nargs;
       state.curOpt = key;
+      state.curOptType = type;
     }
     else if (type === 'boolean') {
       result[key] = true;
@@ -158,11 +160,33 @@ class OptionParser {
   _parseArgOfCurOpt(opt) {
     const result = this._result;
     const state = this._state;
+    const curOpt = state.curOpt;
+    const curType = state.curOptType;
+    const nargs = this._config.getNargs(curOpt);
 
-    result[state.curOpt] = result[state.curOpt] || [];
-    result[state.curOpt].push(opt);
-    if (--state.curNargs === 0)
+    if (nargs !== 1)
+      result[curOpt] = result[curOpt] || [];
+
+    if (curType === 'string') {
+      if (nargs === 1)
+        result[curOpt] = opt;
+      else
+        result[curOpt].push(opt);
+    }
+
+    else if (curType === 'number') {
+      if (!isNumber(Number(opt)))
+        throw new ParseError(`option ${curOpt} expects a number: got '${opt}'`);
+      if (nargs === 1)
+        result[curOpt] = Number(opt);
+      else
+        result[curOpt].push(Number(opt));
+    }
+
+    if (--state.curNargs === 0) {
       state.curOpt = null;
+      state.curOptType = null;
+    }
     state.argsParsed++;
   }
 

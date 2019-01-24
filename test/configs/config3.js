@@ -5,7 +5,7 @@ module.exports = {
     },
     requiredStrs: {
       required: true,
-      type: 'boolean',
+      type: 'string',
       nargs: 2
     }
   }
