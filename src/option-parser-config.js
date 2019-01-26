@@ -5,14 +5,13 @@ const {
 
 const { InvalidConfigError } = require('./error');
 
-const optionTypes = ['number', 'boolean', 'string', 'count'];
+const optionTypes = ['number', 'boolean', 'string', 'count', 'version'];
+
+const versionFlags = ['v', 'V', 'version'];
 
 class OptionParserConfig {
   constructor(config) {
-    this._config = objectLike(config) ? config : {};
-    touch(this._config, 'options');
-    touch(this._config, 'arguments');
-
+    this._initConfig(config);
     this._normalizeConfig();
   }
 
@@ -42,6 +41,17 @@ class OptionParserConfig {
 
   get config() {
     return this._config;
+  }
+
+  _initConfig(config) {
+    this._config = objectLike(config) ? config : {};
+    touch(this._config, 'options');
+    touch(this._config, 'arguments');
+
+    for (let vFlag of versionFlags) {
+      if (!has(this._config.options, vFlag))
+        this._config.options[vFlag] = { type: 'version' };
+    }
   }
 
   _normalizeConfig() {

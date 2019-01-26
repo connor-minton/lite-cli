@@ -27,6 +27,10 @@ class OptionParser {
     return this._parseOpts(opts);
   }
 
+  get config() {
+    return this._config;
+  }
+
   _initResults() {
     this._result = { _: [] };
     for (let opt of Object.keys(this._config.getOptions())) {
@@ -108,6 +112,10 @@ class OptionParser {
         state.curOpt = key;
         state.curOptType = type;
       }
+      else if (type === 'version') {
+        this._result = 'version';
+        state.done = true;
+      }
       else if (type === 'boolean') {
         result[key] = true;
       }
@@ -133,6 +141,10 @@ class OptionParser {
       state.curOpt = key;
       state.curOptType = type;
     }
+    else if (type === 'version') {
+      this._result = 'version';
+      state.done = true;
+    }
     else if (type === 'boolean') {
       result[key] = true;
     }
@@ -156,7 +168,7 @@ class OptionParser {
     const result = this._result;
 
     const rest = this._originalArgs.slice(state.argsParsed+1);
-    result._.concat(rest);
+    result._ = result._.concat(rest);
     state.done = true;
     state.argsParsed += rest.length + 1;
   }
@@ -198,6 +210,8 @@ class OptionParser {
     const state = this._state;
     const config = this._config;
     const result = this._result;
+
+    if (result === 'version') return;
 
     if (state.done) {
       if (state.curNargs > 0) {
