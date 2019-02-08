@@ -7,9 +7,6 @@ class OptionParser {
     this._config = new OptionParserConfig(config);
     this._result = { _: [] };
     this._originalArgs = [];
-
-    this._initState();
-    this._initResults();
   }
 
   /**
@@ -22,6 +19,8 @@ class OptionParser {
       throw new Error('expected array, got ' + typeof opts);
     }
 
+    this._resetParser();
+
     this._originalArgs = opts;
 
     return this._parseOpts(opts);
@@ -29,6 +28,11 @@ class OptionParser {
 
   get config() {
     return this._config;
+  }
+
+  _resetParser() {
+    this._initState();
+    this._initResults();
   }
 
   _initResults() {

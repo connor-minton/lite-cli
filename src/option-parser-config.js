@@ -1,5 +1,5 @@
 const {
-  objectLike, touch, get,
+  isObjectLike, touch, get,
   pick, has, isNumber, set
 } = require('./sak');
 
@@ -44,7 +44,7 @@ class OptionParserConfig {
   }
 
   _initConfig(config) {
-    this._config = objectLike(config) ? config : {};
+    this._config = isObjectLike(config) ? config : {};
     touch(this._config, 'options');
     touch(this._config, 'arguments');
 
