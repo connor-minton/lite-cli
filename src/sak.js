@@ -287,6 +287,17 @@ function all(objOrArray, predicate) {
   return true;
 }
 
+/**
+ * If `thing` is a function, returns `thing`. Else, returns a function that
+ * returns `thing`.
+ */
+function funkify(thing) {
+  if (getType(thing) !== 'function')
+    return function() { return thing; };
+
+  return thing;
+}
+
 module.exports = {
   type: getType,
   objectLike,
@@ -301,5 +312,6 @@ module.exports = {
   mapEntries,
   pick,
   all,
-  isNumber
+  isNumber,
+  funkify
 };

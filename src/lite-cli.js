@@ -1,4 +1,4 @@
-const { pick, set, type, get, has } = require('./sak');
+const { pick, set, get, isNumber, funkify } = require('./sak');
 const OptionParser = require('./option-parser');
 const { LiteCliError, ParseError } = require('./error');
 
@@ -12,8 +12,6 @@ class LiteCli {
   }
 
   parse(argv) {
-    const parserConfig = this._parser.config;
-
     if (!Array.isArray(argv))
       throw new LiteCliError(`'argv' must be an Array`);
 
@@ -33,16 +31,47 @@ class LiteCli {
     }
   }
 
+  showVersion() {
+    console.log(this._config.version() || 'no version');
+  }
+
   versionExit() {
-    console.log(this._config.version());
+    this.showVersion();
     process.exit(0);
+  }
+
+  showHelp() {
+    console.log(this._config.help());
+  }
+
+  helpExit(error, code=0) {
+    this.showHelp();
+    if (error) {
+      if (!isNumber(code) || code === Infinity || code === -Infinity)
+        code = 1;
+      this.showError(error);
+    }
+    process.exit(code);
+  }
+
+  errorExit(error, code=1) {
+    this.showError(error);
+    process.exit(code);
+  }
+
+  showError(error) {
+    let msg = error;
+    if (error instanceof Error)
+      msg = error.message;
+    console.error(`${this._config.name()}: error: ${msg}`);
   }
 
   _normalizeConfig() {
     const config = this._config;
-    const version = get(config, 'version');
-    if (type(version) !== 'function')
-      set(config, 'version', () => version);
+
+    for (let cfgKey of ['help', 'name', 'version']) {
+      set(config, cfgKey, funkify(get(config, cfgKey)));
+    }
   }
 }
 
