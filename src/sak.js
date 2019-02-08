@@ -1,17 +1,31 @@
 function getType(thing) {
   const typeOf = typeof thing;
+
   if (thing === null)
     return 'null';
+
   if (typeOf === 'string' || thing instanceof String)
     return 'string';
-  if (typeOf === 'number' || thing instanceof Number)
+
+  if (typeOf === 'number' || thing instanceof Number) {
+    if (Number.isNaN(thing))
+      return 'NaN';
+    if (thing === Infinity)
+      return 'Infinity';
+    if (thing === -Infinity)
+      return '-Infinity';
     return 'number';
+  }
+
   if (typeOf === 'undefined')
     return 'undefined';
+
   if (typeOf === 'function')
     return 'function';
+
   if (Array.isArray(thing))
     return 'array';
+
   return 'object';
 }
 
