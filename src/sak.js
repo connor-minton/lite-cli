@@ -314,7 +314,7 @@ function funkify(thing) {
 
 module.exports = {
   type: getType,
-  objectLike,
+  isObjectLike: objectLike,
   has,
   get,
   set,
