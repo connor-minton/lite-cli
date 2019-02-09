@@ -1,13 +1,12 @@
 const {
   isObjectLike, touch, get,
-  pick, has, isNumber, set
+  pick, has, isNumber, set,
+  type
 } = require('./sak');
 
 const { InvalidConfigError } = require('./error');
 
 const optionTypes = ['number', 'boolean', 'string', 'count', 'version'];
-
-const versionFlags = ['v', 'V', 'version'];
 
 class OptionParserConfig {
   constructor(config) {
@@ -48,9 +47,20 @@ class OptionParserConfig {
     touch(this._config, 'options');
     touch(this._config, 'arguments');
 
-    for (let vFlag of versionFlags) {
-      if (!has(this._config.options, vFlag))
-        this._config.options[vFlag] = { type: 'version' };
+    if (has(this._config, 'versionFlags')) {
+      let versionFlags = this._config.versionFlags;
+      let vFlagsType = type(versionFlags);
+      if (vFlagsType === 'string') {
+        versionFlags = [versionFlags];
+        vFlagsType = 'array';
+      }
+      if (vFlagsType !== 'array')
+        throw new InvalidConfigError(`'versionFlags' must be an array or a string`);
+
+      for (let vFlag of versionFlags) {
+        if (!has(this._config.options, vFlag))
+          this._config.options[vFlag] = { type: 'version' };
+      }
     }
   }
 

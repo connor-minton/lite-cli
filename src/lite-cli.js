@@ -2,10 +2,12 @@ const { pick, set, get, isNumber, funkify } = require('./sak');
 const OptionParser = require('./option-parser');
 const { LiteCliError, ParseError } = require('./error');
 
+const defaultVersionFlags = [ 'v', 'V', 'version' ];
+
 class LiteCli {
   constructor(config) {
     this._config = config || {};
-    this._parser = new OptionParser(pick(this._config, ['options', 'arguments']));
+    this._parser = this._createOptionParser();
     this._args = null;
 
     this._normalizeConfig();
@@ -24,8 +26,7 @@ class LiteCli {
     }
     catch (err) {
       if (err instanceof ParseError) {
-        console.error(err.message);
-        process.exit(1);
+        this.errorExit(err, 1);
       }
       else throw err;
     }
@@ -72,6 +73,19 @@ class LiteCli {
     for (let cfgKey of ['help', 'name', 'version']) {
       set(config, cfgKey, funkify(get(config, cfgKey)));
     }
+  }
+
+  _createOptionParser() {
+    const parserConfig = {
+      options: this._config.options,
+      arguments: this._config.arguments
+    };
+
+    if (this._config.version) {
+      parserConfig.versionFlags = this._config.versionFlags || defaultVersionFlags;
+    }
+
+    return new OptionParser(parserConfig);
   }
 }
 
