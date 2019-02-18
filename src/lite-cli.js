@@ -6,9 +6,12 @@ const defaultVersionFlags = [ 'v', 'V', 'version' ];
 
 class LiteCli {
   constructor(config) {
-    this._config = config || {};
+    config = config || {};
+    this._config = config;
     this._parser = this._createOptionParser();
     this._args = null;
+    this._process = config.process || process;
+    this._logger = config.logger || console;
 
     this._normalizeConfig();
   }
@@ -33,38 +36,38 @@ class LiteCli {
   }
 
   showVersion() {
-    console.log(this._config.version() || 'no version');
+    this._logger.log(this._config.version() || 'no version');
   }
 
-  versionExit() {
+  exitVersion() {
     this.showVersion();
-    process.exit(0);
+    this._process.exit(0);
   }
 
   showHelp() {
-    console.log(this._config.help());
+    this._logger.log(this._config.help());
   }
 
-  helpExit(error, code=0) {
+  exitHelp(error, code=0) {
     this.showHelp();
     if (error) {
       if (!isNumber(code) || code === Infinity || code === -Infinity)
         code = 1;
       this.showError(error);
     }
-    process.exit(code);
+    this._process.exit(code);
   }
 
-  errorExit(error, code=1) {
+  exitError(error, code=1) {
     this.showError(error);
-    process.exit(code);
+    this._process.exit(code);
   }
 
   showError(error) {
     let msg = error;
     if (error instanceof Error)
       msg = error.message;
-    console.error(`${this._config.name()}: error: ${msg}`);
+    this._logger.error(`${this._config.name()}: error: ${msg}`);
   }
 
   _normalizeConfig() {
