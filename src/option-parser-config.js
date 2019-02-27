@@ -86,6 +86,10 @@ class OptionParserConfig {
     const type = get(optCfg, 'type');
     const nargs = get(optCfg, 'nargs');
 
+    if (!type && nargs) {
+      set(optCfg, 'type', 'string');
+    }
+
     if (['string','number'].includes(type)) {
       if (!isNumber(nargs))
         set(optCfg, 'nargs', 1);

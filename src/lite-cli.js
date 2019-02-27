@@ -29,7 +29,7 @@ class LiteCli {
     }
     catch (err) {
       if (err instanceof ParseError) {
-        this.errorExit(err, 1);
+        this.exitError(err, 1);
       }
       else throw err;
     }

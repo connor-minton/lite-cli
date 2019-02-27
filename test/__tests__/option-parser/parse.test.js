@@ -118,3 +118,49 @@ test('parse: versionFlags: returns "version" when a version flag is encountered'
     expect(parser.parse(input)).toEqual(output);
   }
 });
+
+test('parse: defaults type to "string" when !type and nargs > 0', () => {
+  const tests = [
+    {
+      config: {
+        options: {
+          f: { nargs: 1 }
+        }
+      },
+      input: [ '-f', '1234' ],
+      output: {
+        _: [],
+        f: '1234'
+      }
+    },
+    {
+      config: {
+        options: {
+          f: { nargs: 2 }
+        }
+      },
+      input: [ '-f', 'asdf', '1234' ],
+      output: {
+        _: [],
+        f: [ 'asdf', '1234' ]
+      }
+    },
+    {
+      config: {
+        options: {
+          files: { nargs: 2 }
+        }
+      },
+      input: [ 'pos1', '--files', 'a.json', 'b.json', 'pos2' ],
+      output: {
+        _: [ 'pos1', 'pos2' ],
+        files: [ 'a.json', 'b.json' ]
+      }
+    }
+  ];
+
+  for (let {config, input, output} of tests) {
+    const parser = new OptionParser(config);
+    expect(parser.parse(input)).toEqual(output);
+  }
+});
