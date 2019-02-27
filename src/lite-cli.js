@@ -58,11 +58,6 @@ class LiteCli {
     this._process.exit(code);
   }
 
-  exitError(error, code=1) {
-    this.showError(error);
-    this._process.exit(code);
-  }
-
   showError(error) {
     let msg = error;
     if (error instanceof Error)
@@ -70,10 +65,24 @@ class LiteCli {
     this._logger.error(`${this._config.name()}: error: ${msg}`);
   }
 
+  exitError(error, code=1) {
+    this.showError(error);
+    this._process.exit(code);
+  }
+
+  showUsage() {
+    this._logger.error(this._config.usage() || 'usage: (no usage defined)');
+  }
+
+  exitUsage(code=1) {
+    this.showUsage();
+    this._process.exit(code);
+  }
+
   _normalizeConfig() {
     const config = this._config;
 
-    for (let cfgKey of ['help', 'name', 'version']) {
+    for (let cfgKey of ['help', 'name', 'version', 'usage']) {
       set(config, cfgKey, funkify(get(config, cfgKey)));
     }
   }
