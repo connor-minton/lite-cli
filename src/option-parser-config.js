@@ -6,7 +6,7 @@ const {
 
 const { InvalidConfigError } = require('./error');
 
-const optionTypes = ['number', 'boolean', 'string', 'count', 'version'];
+const optionTypes = ['number', 'boolean', 'string', 'count', 'version', 'help'];
 
 class OptionParserConfig {
   constructor(config) {
@@ -47,19 +47,26 @@ class OptionParserConfig {
     touch(this._config, 'options');
     touch(this._config, 'arguments');
 
-    if (has(this._config, 'versionFlags')) {
-      let versionFlags = this._config.versionFlags;
-      let vFlagsType = type(versionFlags);
-      if (vFlagsType === 'string') {
-        versionFlags = [versionFlags];
-        vFlagsType = 'array';
-      }
-      if (vFlagsType !== 'array')
-        throw new InvalidConfigError(`'versionFlags' must be an array or a string`);
+    this._initSpecialFlags(['version', 'help']);
+  }
 
-      for (let vFlag of versionFlags) {
-        if (!has(this._config.options, vFlag))
-          this._config.options[vFlag] = { type: 'version' };
+  _initSpecialFlags(specialFlags) {
+    for (let specialFlag of specialFlags) {
+      const flagsConfigKey = specialFlag + 'Flags';
+      if (has(this._config, flagsConfigKey)) {
+        let flags = this._config[flagsConfigKey];
+        let flagsType = type(flags);
+        if (flagsType === 'string') {
+          flags = [flags];
+          flagsType = 'array';
+        }
+        if (flagsType !== 'array')
+          throw new InvalidConfigError(`'${flagsConfigKey}' must be an array or a string`);
+
+        for (let flag of flags) {
+          if (!has(this._config.options, flag))
+            this._config.options[flag] = { type: specialFlag };
+        }
       }
     }
   }
