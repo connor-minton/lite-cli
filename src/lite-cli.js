@@ -3,6 +3,7 @@ const OptionParser = require('./option-parser');
 const { LiteCliError, ParseError } = require('./error');
 
 const defaultVersionFlags = [ 'v', 'V', 'version' ];
+const defaultHelpFlags = [ 'h', '?', 'help' ];
 
 class LiteCli {
   constructor(config) {
@@ -23,7 +24,9 @@ class LiteCli {
     try {
       this._args = this._parser.parse(argv.slice(2));
       if (this._args === 'version')
-        this.versionExit();
+        this.exitVersion();
+      else if (this._args === 'help')
+        this.exitHelp();
       else
         return this._args;
     }
@@ -45,7 +48,7 @@ class LiteCli {
   }
 
   showHelp() {
-    this._logger.log(this._config.help());
+    this._logger.log(this._config.help() || 'no help');
   }
 
   exitHelp(error, code=0) {
@@ -93,9 +96,15 @@ class LiteCli {
       arguments: this._config.arguments
     };
 
-    if (this._config.version) {
-      parserConfig.versionFlags = this._config.versionFlags || defaultVersionFlags;
-    }
+    if (this._config.version && !this._config.versionFlags)
+      parserConfig.versionFlags = defaultVersionFlags;
+    else if (this._config.versionFlags)
+      parserConfig.versionFlags = this._config.versionFlags;
+
+    if (this._config.help && !this._config.helpFlags)
+      parserConfig.helpFlags = defaultHelpFlags;
+    else if (this._config.helpFlags)
+      parserConfig.helpFlags = this._config.helpFlags;
 
     return new OptionParser(parserConfig);
   }

@@ -2,6 +2,8 @@ const OptionParserConfig = require('./option-parser-config');
 const { ParseError } = require('./error');
 const { has, isNumber } = require('./sak');
 
+const shortCircuitFlags = [ 'version', 'help' ];
+
 class OptionParser {
   constructor(config) {
     this._config = new OptionParserConfig(config);
@@ -116,8 +118,8 @@ class OptionParser {
         state.curOpt = key;
         state.curOptType = type;
       }
-      else if (type === 'version') {
-        this._result = 'version';
+      else if (shortCircuitFlags.includes(type)) {
+        this._result = type;
         state.done = true;
       }
       else if (type === 'boolean') {
@@ -145,8 +147,8 @@ class OptionParser {
       state.curOpt = key;
       state.curOptType = type;
     }
-    else if (type === 'version') {
-      this._result = 'version';
+    else if (shortCircuitFlags.includes(type)) {
+      this._result = type;
       state.done = true;
     }
     else if (type === 'boolean') {
@@ -215,7 +217,7 @@ class OptionParser {
     const config = this._config;
     const result = this._result;
 
-    if (result === 'version') return;
+    if (shortCircuitFlags.includes(result)) return;
 
     if (state.done) {
       if (state.curNargs > 0) {

@@ -119,6 +119,51 @@ test('parse: versionFlags: returns "version" when a version flag is encountered'
   }
 });
 
+test('parse: helpFlags: returns "help" when a help flag is encountered', () => {
+  const hConfig = {
+    helpFlags: ['h']
+  };
+  const hStrConfig = {
+    helpFlags: 'h'
+  };
+  const hHHelpConfig = {
+    helpFlags: ['h', 'H', 'help']
+  }
+
+  const tests = [
+    {
+      config: hConfig,
+      input: [ '-h', 'hi' ],
+      output: 'help'
+    },
+    {
+      config: hStrConfig,
+      input: [ '-h', 'hi' ],
+      output: 'help'
+    },
+    {
+      config: hHHelpConfig,
+      input: [ '-h', 'hi' ],
+      output: 'help'
+    },
+    {
+      config: hHHelpConfig,
+      input: [ '-H', 'hi' ],
+      output: 'help'
+    },
+    {
+      config: hHHelpConfig,
+      input: [ '--help', 'hi' ],
+      output: 'help'
+    }
+  ];
+
+  for (let {config, input, output} of tests) {
+    const parser = new OptionParser(config);
+    expect(parser.parse(input)).toEqual(output);
+  }
+});
+
 test('parse: defaults type to "string" when !type and nargs > 0', () => {
   const tests = [
     {
